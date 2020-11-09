@@ -15,15 +15,18 @@
           <div>
             <el-tabs v-model="activeName" @tab-click="handleClick">
                     <el-tab-pane label="权限" name="first" id="jurisdiction" >
-                        <el-select v-model="jurstate" placeholder="选择状态" @change="jurchange">
-                            <el-option
-                            v-for="(item,index) in juroptions"
-                            :key="index"
-                            :label="item.label"
-                            :value="item.value"
-                            >
-                            </el-option>
-                        </el-select>
+                        <div style="width:97%;display:flex;justify-content:space-between">
+                            <el-select v-model="jurstate" placeholder="选择状态" @change="jurchange">
+                                <el-option
+                                v-for="(item,index) in juroptions"
+                                :key="index"
+                                :label="item.label"
+                                :value="item.value"
+                                >
+                                </el-option>
+                            </el-select>
+                        <el-button type="primary" plain @click="addjur">添加权限</el-button>
+                        </div>
                         <div> 
                             <el-table
                                 :data="tableDataJur"
@@ -181,6 +184,21 @@
         </span>
     </el-dialog>
     <el-dialog
+        id="addadmdialog"
+        title="添加角色"
+        :visible.sync="centerDialogVisible3"
+        width="60%"
+        center>
+        <div style="font-size:1.2em;margin-top: 30px;">权限名称:</div>
+        <el-input style="width:50%" v-model="jurname" placeholder="请输入权限名称"></el-input>
+        <div style="font-size:1.2em;margin-top: 30px;">权限描述:</div>
+        <el-input style="width:50%" v-model="jurdesc" placeholder="请输入权限描述"></el-input>
+        <span slot="footer" class="dialog-footer">
+            <el-button @click="centerDialogVisible3 = false">取 消</el-button>
+            <el-button type="primary" @click="addjujur">确 定</el-button>
+        </span>
+    </el-dialog>
+    <el-dialog
       title="修改权限"
       :visible.sync="centerDialogVisible2"
       width="30%"
@@ -224,11 +242,14 @@ export default {
                 },
             ],
             jurstate:'',
+            jurname:'',
+            jurdesc:'',
             adminstate:'',
             tableDataJur:[],
             tableDataAdm:[],
             centerDialogVisible:false,
             centerDialogVisible2:false,
+            centerDialogVisible3:false,
             admname:'',
             admdesc:'',
             newadmjur:[],
@@ -275,6 +296,10 @@ export default {
         },
         addrole(){
             this.centerDialogVisible = true
+        },
+        addjur(){
+            this.centerDialogVisible3 = true
+
         },
         addrorole(){
             var that = this
@@ -325,6 +350,27 @@ export default {
                 console.log(res.data.data);
                 this.tableDataJur = res.data.data
             })
+            })
+        },
+        addjujur(){
+            var that = this
+            this.$axios.post('/jur/addjur',{
+                name:that.jurname,
+                jurdesc:that.jurdesc
+            })
+            .then(res=>{
+                console.log(res);
+                this.centerDialogVisible3 = false
+            })
+            .then(()=>{
+                this.$axios({
+                    method:'get',
+                    url:'/jurisdiction/findjurisdiction'
+                })
+                .then(res=>{
+                    console.log(res.data.data);
+                    this.tableDataJur = res.data.data
+                })
             })
         },
         stopjur(row) {

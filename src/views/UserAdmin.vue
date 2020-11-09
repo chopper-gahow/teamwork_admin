@@ -153,10 +153,10 @@ export default {
                 this.hisrole = res.data.data
             })
         },
-        deletenotice(row){
+        deleteuser(row){
           this.$axios({
             method:'get',
-            url:'/notice/delete?id='+row._id
+            url:'/user/delete?id='+row._id
           })
           .then(res=>{
             this.$message({
@@ -168,7 +168,7 @@ export default {
           .then(()=>{
               this.$axios({
                 method:'get',
-                url:'/notice/findall'
+                url:'/user/findall'
               })
               .then(res=>{
                 this.tableDataNot = res.data.data
