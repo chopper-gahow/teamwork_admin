@@ -31,7 +31,7 @@
         </span>
         </el-dialog>
         <el-dialog
-        title="登陆"
+        title="注册"
         :visible.sync="centerDialogVisible3"
         width="50%"
         center>
@@ -144,14 +144,14 @@ export default {
             this.$router.push({name:"Home"})
         },
         register(){
-            if(this.reusername === '' || this.repassword === '' || this.arepassword === ''){
+            if(this.reusername === '' || this.repassword === '' || this.arepassword === '' || this.rename === ''){
                 this.$message.error('请完成注册信息的填写');
             }else if(this.repassword !== this.arepassword){
                 this.$message.error('两次输入的密码不一致');
             }else{
                 var that= this
             this.$axios({
-                url:'/register/adminRegister?username='+that.reusername+'&password='+that.repassword+'&realname'+that.rename,
+                url:'/register/adminRegister?username='+that.reusername+'&password='+that.repassword+'&realname='+that.rename,
                 method:'get'
             })
             .then(res=>{

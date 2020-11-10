@@ -48,6 +48,10 @@
                                 label="操作"
                                 style="">
                                 <template slot-scope="scope">
+                                  <el-button
+                                        size="mini"
+                                        type="success"
+                                        @click="updatenotice(scope.row)">修改</el-button>
                                         <el-button
                                         size="mini"
                                         type="success"
@@ -95,7 +99,7 @@
       </div>
     </div>
     <el-dialog
-      title="提示"
+      title="新增公告"
       :visible.sync="centerDialogVisible"
       width="30%"
       center>
@@ -108,7 +112,20 @@
         <el-button type="primary" @click="releasenotice">确 定</el-button>
       </span>
     </el-dialog>
-
+    <el-dialog
+      title="修改公告"
+      :visible.sync="centerDialogVisible2"
+      width="30%"
+      center>
+      <div style="font-size:1.2em;margin-top: 30px;">标题:</div>
+      <el-input style="width:50%" v-model="updatentitle" placeholder="请输入标题"></el-input>
+      <div style="font-size:1.2em;margin-top: 30px;">内容:</div>
+        <el-input style="width:50%" v-model="updatentext" placeholder="请输入内容"></el-input>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="centerDialogVisible2 = false">取 消</el-button>
+        <el-button type="primary" @click="updatenonotice">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -142,12 +159,51 @@ export default {
             value:'',
             tableDataNot:[],
             centerDialogVisible:false,
+            centerDialogVisible2:false,
             noticetitle:'',
             noticetext:'',
-            pushednotice:[]
+            pushednotice:[],
+            updatentitle:[],
+            updatentext:[],
+            updateid:''
         }
     },
     methods:{
+        updatenonotice(){
+          const that = this
+          this.$axios.post('/notice/update',{
+            title:that.updatentitle,
+            text:that.updatentext,
+            id:that.updateid
+          })
+          .then(res=>{
+            this.$axios({
+                method:'get',
+                url:'/notice/findall'
+              })
+              .then(res=>{
+                this.tableDataNot = res.data.data
+              })
+          })
+          .then(()=>{
+            location.reload()
+          })
+        },
+        updatenotice(row){
+          this.$axios({
+            method:'get',
+            url:`/notice/findbyid?id=${row._id}`
+          })
+          .then(res=>{
+            this.updatentitle = res.data.data.title
+            this.updatentext = res.data.data.text
+            this.updateid = res.data.data._id
+          })
+          .then(()=>{
+            console.log(this.updatentitle, this.updatentext, this.updateid);
+            this.centerDialogVisible2 = true
+          })
+        },
         pushnotice(row){
           this.$axios({
                 method:'get',

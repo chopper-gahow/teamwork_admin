@@ -35,7 +35,7 @@
                                 style="width: 97%;margin-top:20px">
                                 <el-table-column
                                 prop="name"
-                                label="角色名称"
+                                label="权限名称"
                                 width="120">
                                 </el-table-column>
                                 <el-table-column
@@ -63,8 +63,12 @@
                                         @click="startjur(scope.row)">启用</el-button>
                                         <el-button
                                         size="mini"
-                                        type="danger"
+                                        type="info"
                                         @click="stopjur(scope.row)">禁用</el-button>
+                                        <el-button
+                                        size="mini"
+                                        type="danger"
+                                        @click="deletejur(scope.row)">删除</el-button>
                                     </template>
                                 </el-table-column>
                             </el-table>
@@ -389,6 +393,29 @@ export default {
                 else if(res.data.code == 201){
                     this.$message.error("权限已经被🈲️用");
                 }
+            })
+            .then(()=>{
+                this.$axios({
+                method:'get',
+                url:'/jurisdiction/findjurisdiction'
+            })
+            .then(res=>{
+                console.log(res.data.data);
+                this.tableDataJur = res.data.data
+            })
+            })
+        },
+        deletejur(row){
+            this.$axios({
+                method:'get',
+                url:'/jur/deletebyid?id='+row._id
+            })
+            .then(res=>{
+                this.$message({
+                        showClose: true,
+                        message: res.data.msg,
+                        type: 'success'
+                    });
             })
             .then(()=>{
                 this.$axios({
