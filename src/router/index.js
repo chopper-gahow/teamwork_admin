@@ -8,6 +8,8 @@ import FengcaiAdmin from '../views/FengcaiAdmin.vue'
 import UserAdmin from '../views/UserAdmin.vue'
 import ClassAdmin from '../views/ClassAdmin.vue'
 import Tongji from '../views/Tongji.vue'
+import Classchoose from '../views/Classchoose.vue'
+import Classcount from '../views/Classcount.vue'
 import Navbar from '../components/Navbar.vue'
 import Datil from '../views/Datil.vue'
 
@@ -87,6 +89,22 @@ const routes = [
       main:Datil
     }
   },
+  {
+    path: '/choose',
+    name: 'Choose',
+    components: {
+      head:Navbar,
+      main:Classchoose
+    }
+  },
+  {
+    path: '/classcount',
+    name: 'Classcount',
+    components: {
+      head:Navbar,
+      main:Classcount
+    }
+  }
 ]
 
 const router = new VueRouter({

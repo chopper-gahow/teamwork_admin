@@ -9,9 +9,9 @@
           <div id="adminmainlefthead" @click="goadmin4"><i class="el-icon-s-grid"></i> 课程管理</div>
           <div id="adminmainlefthead" @click="goadmin5"><i class="el-icon-s-flag"></i> 风采管理</div>
           <div id="adminmainlefthead" @click="goadmin6"><i class="el-icon-s-custom"></i> 用户管理</div>
+          <div id="adminmainlefthead" @click="goadmin8"><i class="el-icon-s-custom"></i> 选课管理</div>
+          <div id="adminmainlefthead" @click="goadmin9"><i class="el-icon-s-custom"></i> 班级管理</div>
           <div id="adminmainlefthead" @click="goadmin7"><i class="el-icon-s-custom"></i> 统计</div>
-
-
       </div>
       <div id="adminright">
           <div id="noticeright">
@@ -309,6 +309,12 @@ export default {
         },
         goadmin7(){
             this.$router.push({name:"Tongji"})
+        },
+        goadmin8(){
+            this.$router.push({name:"Choose"})
+        },
+        goadmin9(){
+            this.$router.push({name:"Classcount"})
         },
     },
     mounted(){

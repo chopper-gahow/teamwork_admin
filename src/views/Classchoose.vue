@@ -14,7 +14,42 @@
           <div id="adminmainlefthead" @click="goadmin7"><i class="el-icon-s-custom"></i> 统计</div>
       </div>
       <div id="adminright">
-          <div id="tongji" style="width:900px;height:900px"></div>
+          <div id="noticeright">
+              <span>反馈管理</span> 
+          </div>
+          <div> 
+                            <el-table
+                                :data="allfeed"
+                                stripe
+                                border
+                                style="width: 97%;margin-top:20px">
+                                <el-table-column
+                                prop="username"
+                                label="用户名"
+                                width="250">
+                                </el-table-column>
+                                <el-table-column
+                                prop="classid"
+                                label="课程id"
+                                width="400">
+                                </el-table-column>
+                                <el-table-column
+                                label="操作"
+                                style="">
+                                <template slot-scope="scope">
+                                        <el-button
+                                        size="mini"
+                                        type="success"
+                                        @click="readfeed(scope.row)">通过</el-button>
+                                        <el-button
+                                        size="mini"
+                                        type="danger"
+                                        @click="deletefeed(scope.row)">删除</el-button>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+
+                        </div>
       </div>
     </div>
     <div id="adminmainright">
@@ -50,31 +85,40 @@
     </div>
     <el-dialog
       title="提示"
-      :visible.sync="centerDialogVisible"
-      width="30%"
+      :visible.sync="feedbackdialog"
+      width="40%"
       center>
-      <div style="font-size:1.2em;margin-top: 30px;">标题:</div>
-      <el-input style="width:50%" v-model="noticetitle" placeholder="请输入标题"></el-input>
-      <div style="font-size:1.2em;margin-top: 30px;">内容:</div>
-        <el-input style="width:50%" v-model="noticetext" placeholder="请输入内容"></el-input>
+      <div>课程评分
+        <el-rate
+          v-model="feeddatil.studycase"
+          disabled
+          :colors="colors">
+        </el-rate>
+      </div>
+      <div>课程评价:{{feeddatil.classthink}}
+      </div>
+      <div>教师评价:{{feeddatil.teacherthink}}
+      </div>
+      <div>反馈信息:{{feeddatil.comment}}
+      </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="centerDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="releasenotice">确 定</el-button>
+        <el-button @click="feedbackdialog = false">关闭</el-button>
       </span>
     </el-dialog>
-
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
-var echarts = require('echarts');
+
 export default {
     data(){
         return{
           islogin:sessionStorage.getItem("isLogin"),
           realname:sessionStorage.getItem('realname'),
           headimg:sessionStorage.getItem('headimg'),
+          colors: ['#99A9BF', '#F7BA2A', '#FF9900'],
+          feedbackdialog:false,
             activeName: 'first',
             options:[
                 {
@@ -93,105 +137,36 @@ export default {
                     value:5
                 },
             ],
-            option : {
-                title: {
-                    text: '2020年研学天下各项数据统计'
-                },
-                tooltip: {
-                    trigger: 'axis'
-                },
-                legend: {
-                    data: ['课程', '学生', '教师', '风采']
-                },
-                grid: {
-                    left: '3%',
-                    right: '4%',
-                    bottom: '3%',
-                    containLabel: true
-                },
-                toolbox: {
-                    feature: {
-                        saveAsImage: {}
-                    }
-                },
-                xAxis: {
-                    type: 'category',
-                    boundaryGap: false,
-                    data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
-                },
-                yAxis: {
-                    type: 'value'
-                },
-                series: [
-                    {
-                        name: '课程',
-                        type: 'line',
-                        stack: '总量',
-                        data: [0, 0, 1, 1, 1, 2, 4, 5, 7, 7, 11, 16]
-                    },
-                    {
-                        name: '学生',
-                        type: 'line',
-                        stack: '总量',
-                        data: [220, 240, 371, 377, 565, 600, 700, 842, 1010, 1111, 1132, 1232]
-                    },
-                    {
-                        name: '教师',
-                        type: 'line',
-                        stack: '总量',
-                        data: [4, 5, 10, 12, 12, 13, 15, 15, 17, 23, 26, 33]
-                    },
-                    {
-                        name: '风采',
-                        type: 'line',
-                        stack: '总量',
-                        data: [301, 332, 403, 502, 640, 756, 857, 999, 1012, 1200, 1289, 1398]
-                    }
-                ]
-            },
             value:'',
             tableDataNot:[],
             centerDialogVisible:false,
             noticetitle:'',
             noticetext:'',
-            pushednotice:[]
+            pushednotice:[],
+            allfeed:[],
+            classfeed:[],
+            classid:'',
+            feeddatil:{}
         }
     },
     methods:{
-        pushnotice(row){
-          this.$axios({
-                method:'get',
-                url:'/notice/push?id='+row._id
+        readfeed(row){
+            this.$axios({
+              method:'get',
+              url:'/user/tongg?id='+row._id
             })
             .then(res=>{
-                if(res.data.code == 200){
-                    this.$message({
+              this.$message({
                         showClose: true,
                         message: res.data.msg,
                         type: 'success'
                     });
-                }
-                else if(res.data.code == 201){
-                    this.$message.error("公告已经被推送");
-                }
-            })
-            .then(()=>{
-              this.$axios({
-                method:'get',
-                url:'/notice/findall'
-              })
-              .then(res=>{
-                this.tableDataNot = res.data.data
-              })
-            })
-            .then(()=>{
-              location.reload()
             })
         },
-        deletenotice(row){
+        deletefeed(row){
           this.$axios({
             method:'get',
-            url:'/notice/delete?id='+row._id
+            url:'/feedback/delete?id='+row._id
           })
           .then(res=>{
             this.$message({
@@ -203,39 +178,13 @@ export default {
           .then(()=>{
               this.$axios({
                 method:'get',
-                url:'/notice/findall'
-              })
-              .then(res=>{
-                this.tableDataNot = res.data.data
-              })
-            })
-        },
-        releasenotice(){
-          var that = this
-          this.$axios.post('notice/creatnewnotice',{
-                title:that.noticetitle,
-                text:that.noticetext
+                url:'/feedback/findall'
             })
             .then(res=>{
-                this.$message({
-                        showClose: true,
-                        message: res.data.msg,
-                        type: 'success'
-                    });
-                this.centerDialogVisible=false
+                this.allfeed = res.data.data
             })
-            .then(()=>{
-              this.$axios({
-                method:'get',
-                url:'/notice/findall'
-              })
-              .then(res=>{
-                this.tableDataNot = res.data.data
-              })
-            })
-        },
-        addnotice(){
-          this.centerDialogVisible = true
+          })
+          
         },
         goadmin(){
             this.$router.push({name:"Admin"})
@@ -272,6 +221,13 @@ export default {
         },
     },
     mounted(){
+        this.$axios({
+        method:'get',
+        url:'/user/findaddclass'
+        })
+        .then(res=>{
+        this.allfeed = res.data.data
+        })
       this.$axios({
         method:'get',
         url:'/notice/findpushed'
@@ -279,15 +235,6 @@ export default {
         .then(res=>{
         this.pushednotice = res.data.data
         })
-      this.$axios({
-        method:'get',
-        url:'/notice/findall'
-      })
-      .then(res=>{
-        this.tableDataNot = res.data.data
-        let myChart = echarts.init(document.getElementById('tongji'));
-        myChart.setOption(this.option)
-      })
     }
 }
 </script>
@@ -469,5 +416,57 @@ export default {
   }
   #noticeright>span{
     font-size: 2em;
+  }
+  #noticeright{
+    width: 97%;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 2px gray solid;
+    margin-bottom: 30px;
+  }
+  #noticeright>span{
+    font-size: 2em;
+  }
+  #myitems{
+      width: 88%;
+      height: 170px;
+      margin: 0 auto;
+      box-shadow: 0 0 10px rgb(185, 145, 145);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      justify-content: space-between;
+  }
+  #itemcover{
+      width: 250px;
+      height: 90%;
+      background: red;
+      overflow: hidden;
+  }
+  #itemcover img{
+      width: 100%;
+  }
+  #myiteminfo{
+      width: 340px;
+      height: 90%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      
+  }
+  #myitemtitle{
+      font-size: 1.2em;
+      font-weight: 500;
+      text-align: left;
+  }
+  #myitemcontent{
+      margin-top: 20px;
+      font-size: .9em;
+      font-weight: 500;
+      text-align: left;
+  }
+  #myitemfeedback{
+      width: 340px;
+      height: 30px;
   }
 </style>

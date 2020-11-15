@@ -9,8 +9,9 @@
           <div id="adminmainlefthead" @click="goadmin4"><i class="el-icon-s-grid"></i> 课程管理</div>
           <div id="adminmainlefthead" @click="goadmin5"><i class="el-icon-s-flag"></i> 风采管理</div>
           <div id="adminmainlefthead" @click="goadmin6"><i class="el-icon-s-custom"></i> 用户管理</div>
+          <div id="adminmainlefthead" @click="goadmin8"><i class="el-icon-s-custom"></i> 选课管理</div>
+          <div id="adminmainlefthead" @click="goadmin9"><i class="el-icon-s-custom"></i> 班级管理</div>
           <div id="adminmainlefthead" @click="goadmin7"><i class="el-icon-s-custom"></i> 统计</div>
-
       </div>
       <div id="adminright">
           <div>
@@ -98,6 +99,12 @@
                 <el-option label="16" value="16"></el-option>
                 <el-option label="24" value="24"></el-option>
             </el-select>
+
+            <br>
+            请选择有此课程的班级:
+            <el-checkbox-group v-model="newadmjur">
+                <el-checkbox v-for="(item,index) in classarrarra" :key="index" :label="item.classcount" name="type"></el-checkbox>
+            </el-checkbox-group>
             <div>
                 <span id="coverdec">请选择课程的封面</span>
             </div>
@@ -198,7 +205,9 @@ export default {
             postData:{
                 token:this.$store.state.qiniutoken,
                 domain:'hcpr.s3-cn-south-1.qiniucs.com'
-            }
+            },
+            classarrarra:[],
+            newadmjur:[]
         }
     },
     methods:{
@@ -245,7 +254,8 @@ export default {
                 techer:that.techer,
                 desc:that.desc,
                 coverimg:that.coverimg,
-                classtime:that.classtime
+                classtime:that.classtime,
+                classarr:that.newadmjur
             })
             .then(res=>{
                 this.$message({
@@ -265,6 +275,14 @@ export default {
         },
         addnewclass(){
             this.classdialog = true
+            this.$axios({
+              get:'get',
+              url:'/classmate/findall'
+            })
+            .then(res => {
+              this.classarrarra = res.data.data
+              console.log(this.classarrarra);
+            })
         },
         deletethis(id){
             this.$axios({
@@ -302,6 +320,12 @@ export default {
         },
         goadmin7(){
             this.$router.push({name:"Tongji"})
+        },
+        goadmin8(){
+            this.$router.push({name:"Choose"})
+        },
+        goadmin9(){
+            this.$router.push({name:"Classcount"})
         },
     },
     mounted(){

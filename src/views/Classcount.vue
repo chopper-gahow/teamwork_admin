@@ -14,7 +14,47 @@
           <div id="adminmainlefthead" @click="goadmin7"><i class="el-icon-s-custom"></i> 统计</div>
       </div>
       <div id="adminright">
-          <div id="tongji" style="width:900px;height:900px"></div>
+          <div id="noticeright">
+              <span>班级管理</span> 
+              <el-button type="primary" plain @click="addnotice">添加班级</el-button>
+          </div>
+          <div> 
+                            <el-table
+                                :data="tableDataNot"
+                                stripe
+                                border
+                                style="width: 97%;margin-top:20px">
+                                <el-table-column
+                                prop="_id"
+                                label="id"
+                                width="280">
+                                </el-table-column>
+                                <el-table-column
+                                prop="classcount"
+                                label="班级号"
+                                width="180">
+                                </el-table-column>
+                                <el-table-column
+                                label="操作"
+                                style="">
+                                <template slot-scope="scope">
+                                  <el-button
+                                        size="mini"
+                                        type="success"
+                                        @click="updatenotice(scope.row)">修改</el-button>
+                                        <el-button
+                                        size="mini"
+                                        type="success"
+                                        @click="pushnotice(scope.row)">推送</el-button>
+                                        <el-button
+                                        size="mini"
+                                        type="danger"
+                                        @click="deletenotice(scope.row)">删除</el-button>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+
+                        </div>
       </div>
     </div>
     <div id="adminmainright">
@@ -32,7 +72,6 @@
           平台管理员
         </div>
         <div id="admintopfoot">
-          <button @click="goadmin"><i class="el-icon-s-promotion"></i> 发起项目</button>
         </div>
       </div>
       <div id="rightfoot">
@@ -49,26 +88,37 @@
       </div>
     </div>
     <el-dialog
-      title="提示"
+      title="新增公告"
       :visible.sync="centerDialogVisible"
       width="30%"
       center>
-      <div style="font-size:1.2em;margin-top: 30px;">标题:</div>
-      <el-input style="width:50%" v-model="noticetitle" placeholder="请输入标题"></el-input>
-      <div style="font-size:1.2em;margin-top: 30px;">内容:</div>
-        <el-input style="width:50%" v-model="noticetext" placeholder="请输入内容"></el-input>
+      <div style="font-size:1.2em;margin-top: 30px;">班级:</div>
+      <el-input style="width:50%" v-model="classcount" placeholder="请输入标题"></el-input>
       <span slot="footer" class="dialog-footer">
         <el-button @click="centerDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="releasenotice">确 定</el-button>
       </span>
     </el-dialog>
-
+    <el-dialog
+      title="修改公告"
+      :visible.sync="centerDialogVisible2"
+      width="30%"
+      center>
+      <div style="font-size:1.2em;margin-top: 30px;">标题:</div>
+      <el-input style="width:50%" v-model="updatentitle" placeholder="请输入标题"></el-input>
+      <div style="font-size:1.2em;margin-top: 30px;">内容:</div>
+        <el-input style="width:50%" v-model="updatentext" placeholder="请输入内容"></el-input>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="centerDialogVisible2 = false">取 消</el-button>
+        <el-button type="primary" @click="updatenonotice">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
-var echarts = require('echarts');
+
 export default {
     data(){
         return{
@@ -93,71 +143,34 @@ export default {
                     value:5
                 },
             ],
-            option : {
-                title: {
-                    text: '2020年研学天下各项数据统计'
-                },
-                tooltip: {
-                    trigger: 'axis'
-                },
-                legend: {
-                    data: ['课程', '学生', '教师', '风采']
-                },
-                grid: {
-                    left: '3%',
-                    right: '4%',
-                    bottom: '3%',
-                    containLabel: true
-                },
-                toolbox: {
-                    feature: {
-                        saveAsImage: {}
-                    }
-                },
-                xAxis: {
-                    type: 'category',
-                    boundaryGap: false,
-                    data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
-                },
-                yAxis: {
-                    type: 'value'
-                },
-                series: [
-                    {
-                        name: '课程',
-                        type: 'line',
-                        stack: '总量',
-                        data: [0, 0, 1, 1, 1, 2, 4, 5, 7, 7, 11, 16]
-                    },
-                    {
-                        name: '学生',
-                        type: 'line',
-                        stack: '总量',
-                        data: [220, 240, 371, 377, 565, 600, 700, 842, 1010, 1111, 1132, 1232]
-                    },
-                    {
-                        name: '教师',
-                        type: 'line',
-                        stack: '总量',
-                        data: [4, 5, 10, 12, 12, 13, 15, 15, 17, 23, 26, 33]
-                    },
-                    {
-                        name: '风采',
-                        type: 'line',
-                        stack: '总量',
-                        data: [301, 332, 403, 502, 640, 756, 857, 999, 1012, 1200, 1289, 1398]
-                    }
-                ]
-            },
             value:'',
             tableDataNot:[],
             centerDialogVisible:false,
-            noticetitle:'',
-            noticetext:'',
-            pushednotice:[]
+            centerDialogVisible2:false,
+            classcount:'',
+            pushednotice:[],
+            updatentitle:[],
+            updatentext:[],
+            updateid:''
         }
     },
     methods:{
+        
+        updatenotice(row){
+          this.$axios({
+            method:'get',
+            url:`/notice/findbyid?id=${row._id}`
+          })
+          .then(res=>{
+            this.updatentitle = res.data.data.title
+            this.updatentext = res.data.data.text
+            this.updateid = res.data.data._id
+          })
+          .then(()=>{
+            console.log(this.updatentitle, this.updatentext, this.updateid);
+            this.centerDialogVisible2 = true
+          })
+        },
         pushnotice(row){
           this.$axios({
                 method:'get',
@@ -212,10 +225,10 @@ export default {
         },
         releasenotice(){
           var that = this
-          this.$axios.post('notice/creatnewnotice',{
-                title:that.noticetitle,
-                text:that.noticetext
-            })
+          this.$axios({
+            method:'get',
+            url:'/class/add?classcount='+that.classcount
+          })
             .then(res=>{
                 this.$message({
                         showClose: true,
@@ -227,7 +240,7 @@ export default {
             .then(()=>{
               this.$axios({
                 method:'get',
-                url:'/notice/findall'
+                url:'/classmate/findall'
               })
               .then(res=>{
                 this.tableDataNot = res.data.data
@@ -281,12 +294,10 @@ export default {
         })
       this.$axios({
         method:'get',
-        url:'/notice/findall'
+        url:'/classmate/findall'
       })
       .then(res=>{
         this.tableDataNot = res.data.data
-        let myChart = echarts.init(document.getElementById('tongji'));
-        myChart.setOption(this.option)
       })
     }
 }
